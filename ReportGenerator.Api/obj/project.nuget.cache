@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "dgSpecHash": "unOsGZbJVJY=",
+  "success": false,
+  "projectFilePath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\User\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.5\\microsoft.aspnetcore.openapi.9.0.5.nupkg.sha512",
+    "C:\\Users\\User\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Não é possível carregar o índice de serviço para a origem https://pkgs.dev.azure.com/ASAInvestments/_packaging/asa-infrastructure/nuget/v3/index.json.\r\n  Response status code does not indicate success: 401 (Unauthorized).",
+      "projectPath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "filePath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "libraryId": "Microsoft.AspNetCore.OpenApi",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Não é possível carregar o índice de serviço para a origem https://pkgs.dev.azure.com/ASAInvestments/_packaging/asa-infrastructure/nuget/v3/index.json.\r\n  Response status code does not indicate success: 401 (Unauthorized).",
+      "projectPath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "filePath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "libraryId": "Microsoft.AspNetCore.OpenApi",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Não é possível carregar o índice de serviço para a origem https://pkgs.dev.azure.com/ASAInvestments/_packaging/asa-infrastructure/nuget/v3/index.json.\r\n  Response status code does not indicate success: 401 (Unauthorized).",
+      "projectPath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "filePath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "libraryId": "Microsoft.OpenApi",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Não é possível carregar o índice de serviço para a origem https://pkgs.dev.azure.com/ASAInvestments/_packaging/asa-infrastructure/nuget/v3/index.json.\r\n  Response status code does not indicate success: 401 (Unauthorized).",
+      "projectPath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "filePath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "libraryId": "Microsoft.OpenApi",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Ocorreu um erro ao obter os dados de vulnerabilidade do pacote: Não é possível carregar o índice de serviço para a origem https://pkgs.dev.azure.com/ASAInvestments/_packaging/asa-infrastructure/nuget/v3/index.json.",
+      "projectPath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\dev\\ibr\\ReportGenerator\\ReportGenerator.Api\\ReportGenerator.Api.csproj",
+      "targetGraphs": []
+    }
+  ]
+}
