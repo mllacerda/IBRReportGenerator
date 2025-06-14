@@ -1,10 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using QuestPDF.Infrastructure;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using ReportGenerator.Domain.Models;
+using ReportGenerator.Worker.Services;
 using System.Text;
 using System.Text.Json;
-using ReportGenerator.Domain.Models;
 
 namespace ReportGenerator.Worker;
 
@@ -12,6 +14,9 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        // QuestPDF Community License
+        QuestPDF.Settings.License = LicenseType.Community;
+
         await CreateHostBuilder(args).Build().RunAsync();
     }
 
@@ -20,6 +25,7 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<ReportWorker>();
+                services.AddSingleton<ReportGeneratorService>();
             });
 }
 
@@ -28,9 +34,12 @@ public class ReportWorker : BackgroundService
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private readonly string _queueName = "report_requests";
+    private readonly ReportGeneratorService _reportGeneratorService;
 
-    public ReportWorker()
+    public ReportWorker(ReportGeneratorService reportGeneratorService)
     {
+        _reportGeneratorService = reportGeneratorService;
+
         var factory = new ConnectionFactory
         {
             HostName = "localhost",
@@ -48,19 +57,35 @@ public class ReportWorker : BackgroundService
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += (model, ea) =>
         {
-            var body = ea.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            var request = JsonSerializer.Deserialize<ReportRequest>(message);
+            try
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                var request = JsonSerializer.Deserialize<ReportRequest>(message);
 
-            // TODO: Processar a mensagem (gerar PDF, enviar webhook)
-            Console.WriteLine($"Received report request: {request?.ReportId}");
+                Console.WriteLine($"Processing report: {request?.ReportId}");
 
-            _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                // Create PDF
+                var pdfBytes = _reportGeneratorService.GenerateReportPdf(request);
+
+                //Test downloading PDF
+                //File.WriteAllBytes($"report_{request.ReportId}.pdf", pdfBytes);
+
+                // TODO: Enviar o webhook com o PDF
+                Console.WriteLine($"PDF generated for report: {request?.ReportId}");
+
+                _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing report: {ex.Message}");
+                _channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
+            }
         };
 
         _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
 
-        await Task.CompletedTask; // Mantém o Worker rodando
+        await Task.CompletedTask;
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
