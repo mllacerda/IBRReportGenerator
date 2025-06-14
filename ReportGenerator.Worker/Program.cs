@@ -3,10 +3,10 @@ using Microsoft.Extensions.Hosting;
 using QuestPDF.Infrastructure;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using ReportGenerator.Domain.Models;
-using ReportGenerator.Worker.Services;
 using System.Text;
 using System.Text.Json;
+using ReportGenerator.Domain.Models;
+using ReportGenerator.Worker.Services;
 
 namespace ReportGenerator.Worker;
 
@@ -14,19 +14,18 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        // QuestPDF Community License
         QuestPDF.Settings.License = LicenseType.Community;
-
         await CreateHostBuilder(args).Build().RunAsync();
     }
 
     private static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureServices((hostContext, services) =>
-            {
-                services.AddHostedService<ReportWorker>();
-                services.AddSingleton<ReportGeneratorService>();
-            });
+    Host.CreateDefaultBuilder(args)
+        .ConfigureServices((hostContext, services) =>
+        {
+            services.AddHostedService<ReportWorker>();
+            services.AddSingleton<ReportGeneratorService>();
+            services.AddHttpClient<WebhookService>();
+        });
 }
 
 public class ReportWorker : BackgroundService
@@ -35,10 +34,12 @@ public class ReportWorker : BackgroundService
     private readonly IModel _channel;
     private readonly string _queueName = "report_requests";
     private readonly ReportGeneratorService _reportGeneratorService;
+    private readonly WebhookService _webhookService;
 
-    public ReportWorker(ReportGeneratorService reportGeneratorService)
+    public ReportWorker(ReportGeneratorService reportGeneratorService, WebhookService webhookService)
     {
         _reportGeneratorService = reportGeneratorService;
+        _webhookService = webhookService;
 
         var factory = new ConnectionFactory
         {
@@ -55,31 +56,50 @@ public class ReportWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var consumer = new EventingBasicConsumer(_channel);
-        consumer.Received += (model, ea) =>
+        consumer.Received += async (model, ea) =>
         {
+            ReportRequest? request = null;
             try
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
-                var request = JsonSerializer.Deserialize<ReportRequest>(message);
+
+                //Deserialize
+                request = JsonSerializer.Deserialize<ReportRequest>(message);
+
+                if (request == null)
+                    throw new InvalidOperationException($"Failed to deserialize message to ReportRequest. Message: {message}");
 
                 Console.WriteLine($"Processing report: {request?.ReportId}");
 
-                // Create PDF
+                //Create PDF
                 var pdfBytes = _reportGeneratorService.GenerateReportPdf(request);
 
-                //Test downloading PDF
-                //File.WriteAllBytes($"report_{request.ReportId}.pdf", pdfBytes);
-
-                // TODO: Enviar o webhook com o PDF
-                Console.WriteLine($"PDF generated for report: {request?.ReportId}");
+                //Webhook
+                await _webhookService.SendWebhookAsync(
+                    request.WebhookUrl,
+                    request.ReportId,
+                    pdfBytes,
+                    success: true,
+                    message: $"Report {request.ReportId} generated successfully"
+                );
 
                 _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing report: {ex.Message}");
-                _channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
+
+                await _webhookService.SendWebhookAsync(
+                    request?.WebhookUrl ?? string.Empty,
+                    request?.ReportId ?? "unknown",
+                    Array.Empty<byte>(),
+                    success: false,
+                    message: $"Error: {ex.Message}"
+                );
+
+                bool requeue = !(ex is InvalidOperationException && request == null);
+                _channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: requeue);
             }
         };
 
