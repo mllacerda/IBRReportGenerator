@@ -22,3 +22,4 @@ project.nuget.cache
 /ReportGenerator.Worker/obj/project.nuget.cache
 /ReportGenerator.Worker/obj/ReportGenerator.Worker.csproj.nuget.dgspec.json
 /ReportGenerator.Worker/obj/ReportGenerator.Worker.csproj.nuget.g.targets
+*.log

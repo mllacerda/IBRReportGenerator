@@ -6,10 +6,12 @@ namespace ReportGenerator.Worker.Services;
 public class WebhookService
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<WebhookService> _logger;
 
-    public WebhookService(HttpClient httpClient)
+    public WebhookService(HttpClient httpClient, ILogger<WebhookService> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task SendWebhookAsync(string webhookUrl, string reportId, byte[] pdfBytes, bool success, string message)
@@ -26,11 +28,11 @@ public class WebhookService
         {
             var response = await _httpClient.PostAsJsonAsync(webhookUrl, payload);
             response.EnsureSuccessStatusCode();
-            Console.WriteLine($"Webhook sent to {webhookUrl} for report {reportId}");
+            _logger.LogInformation("Webhook sent to {WebhookUrl} for report {ReportId}", webhookUrl, reportId);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to send webhook to {webhookUrl}: {ex.Message}");
+            _logger.LogError(ex, "Failed to send webhook to {WebhookUrl} for report {ReportId}", webhookUrl, reportId);
         }
     }
 }

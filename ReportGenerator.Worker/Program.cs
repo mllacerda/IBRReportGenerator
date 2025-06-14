@@ -3,10 +3,11 @@ using Microsoft.Extensions.Hosting;
 using QuestPDF.Infrastructure;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Text;
-using System.Text.Json;
 using ReportGenerator.Domain.Models;
 using ReportGenerator.Worker.Services;
+using Serilog;
+using System.Text;
+using System.Text.Json;
 
 namespace ReportGenerator.Worker;
 
@@ -14,12 +15,21 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        //QuestPDF License
         QuestPDF.Settings.License = LicenseType.Community;
+
+        //Serilog
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.File("logs/worker-.log", rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
         await CreateHostBuilder(args).Build().RunAsync();
     }
 
     private static IHostBuilder CreateHostBuilder(string[] args) =>
     Host.CreateDefaultBuilder(args)
+        .UseSerilog()
         .ConfigureServices((hostContext, services) =>
         {
             services.AddHostedService<ReportWorker>();
@@ -35,8 +45,9 @@ public class ReportWorker : BackgroundService
     private readonly string _queueName = "report_requests";
     private readonly ReportGeneratorService _reportGeneratorService;
     private readonly WebhookService _webhookService;
+    private readonly ILogger<ReportWorker> _logger;
 
-    public ReportWorker(ReportGeneratorService reportGeneratorService, WebhookService webhookService)
+    public ReportWorker(ReportGeneratorService reportGeneratorService, WebhookService webhookService, ILogger<ReportWorker> logger)
     {
         _reportGeneratorService = reportGeneratorService;
         _webhookService = webhookService;
@@ -51,6 +62,7 @@ public class ReportWorker : BackgroundService
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
         _channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,7 +82,7 @@ public class ReportWorker : BackgroundService
                 if (request == null)
                     throw new InvalidOperationException($"Failed to deserialize message to ReportRequest. Message: {message}");
 
-                Console.WriteLine($"Processing report: {request?.ReportId}");
+                _logger.LogInformation("Processing report: {ReportId}", request?.ReportId);
 
                 //Create PDF
                 var pdfBytes = _reportGeneratorService.GenerateReportPdf(request);
@@ -88,7 +100,7 @@ public class ReportWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error processing report: {ex.Message}");
+                _logger.LogError(ex, "Error processing report: {ReportId}", request?.ReportId ?? "unknown");
 
                 await _webhookService.SendWebhookAsync(
                     request?.WebhookUrl ?? string.Empty,
@@ -110,6 +122,8 @@ public class ReportWorker : BackgroundService
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Stopping ReportWorker...");
+
         _channel?.Close();
         _connection?.Close();
         _channel?.Dispose();
