@@ -15,3 +15,10 @@ project.nuget.cache
 *.csproj.nuget.dgspec.json
 *.csproj.nuget.g.props
 *.csproj.nuget.g.targets
+/ReportGenerator.Domain/obj/project.assets.json
+/ReportGenerator.Domain/obj/project.nuget.cache
+/ReportGenerator.Domain/obj/ReportGenerator.Domain.csproj.nuget.dgspec.json
+/ReportGenerator.Worker/obj/project.assets.json
+/ReportGenerator.Worker/obj/project.nuget.cache
+/ReportGenerator.Worker/obj/ReportGenerator.Worker.csproj.nuget.dgspec.json
+/ReportGenerator.Worker/obj/ReportGenerator.Worker.csproj.nuget.g.targets

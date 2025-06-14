@@ -1,12 +1,16 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers(); 
-builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "ReportGenerator API", Version = "v1" });
-}); 
+});
+
+//RabbitMQ
+builder.Services.AddSingleton<ReportGenerator.Domain.Interfaces.IMessageQueueService, ReportGenerator.Api.Infrastructure.Messaging.RabbitMQService>();
 
 var app = builder.Build();
 

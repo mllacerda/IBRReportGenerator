@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
+using ReportGenerator.Domain.Interfaces;
 using ReportGenerator.Domain.Models;
 
 namespace ReportGenerator.Api.Controllers;
@@ -7,6 +9,13 @@ namespace ReportGenerator.Api.Controllers;
 [Route("api/[controller]")]
 public class ReportsController : ControllerBase
 {
+    private readonly IMessageQueueService _messageQueueService;
+
+    public ReportsController(IMessageQueueService messageQueueService)
+    {
+        _messageQueueService = messageQueueService;
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateReport([FromBody] ReportRequest request)
     {
@@ -20,7 +29,10 @@ public class ReportsController : ControllerBase
             return BadRequest("Invalid WebhookUrl format.");
         }
 
-        // TODO: Enviar a solicitação para o RabbitMQ
+        //Publicando
+        await _messageQueueService.PublishReportRequestAsync(request);
+
+        //OK
         return Accepted(new { Message = $"Report {request.ReportId} queued for processing." });
     }
 }
