@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Options;
+using Moq;
 using RabbitMQ.Client;
 using ReportGenerator.Api.Infrastructure.Messaging;
 using ReportGenerator.Domain.Models;
@@ -14,17 +15,27 @@ public class RabbitMQServiceTests
     private readonly Mock<IConnection> _connectionMock;
     private readonly Mock<IModel> _channelMock;
     private readonly RabbitMQService _service;
+    private readonly Mock<IOptions<RabbitMQSettings>> _settingsMock;
 
     public RabbitMQServiceTests()
     {
         _connectionFactoryMock = new Mock<IRabbitMQConnectionFactory>();
         _connectionMock = new Mock<IConnection>();
         _channelMock = new Mock<IModel>();
+        _settingsMock = new Mock<IOptions<RabbitMQSettings>>();
 
         _connectionFactoryMock.Setup(f => f.CreateConnection()).Returns(_connectionMock.Object);
         _connectionMock.Setup(c => c.CreateModel()).Returns(_channelMock.Object);
 
-        _service = new RabbitMQService(_connectionFactoryMock.Object);
+        _settingsMock.Setup(s => s.Value).Returns(new RabbitMQSettings
+        {
+            HostName = "localhost",
+            UserName = "guest",
+            Password = "guest",
+            QueueName = "report_requests"
+        });
+
+        _service = new RabbitMQService(_connectionFactoryMock.Object, _settingsMock.Object);
     }
 
     [Fact]

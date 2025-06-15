@@ -18,7 +18,7 @@ public class Program
         //QuestPDF License
         QuestPDF.Settings.License = LicenseType.Community;
 
-        //Serilog
+        //Logger
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .WriteTo.File("logs/worker-.log", rollingInterval: RollingInterval.Day)
@@ -36,5 +36,6 @@ public class Program
             services.AddSingleton<IReportGeneratorService, ReportGeneratorService>();
             services.AddSingleton<IWebhookService, WebhookService>();
             services.AddHttpClient<IWebhookService, WebhookService>();
+            services.Configure<RabbitMQSettings>(hostContext.Configuration.GetSection("RabbitMQ"));
         });
 }

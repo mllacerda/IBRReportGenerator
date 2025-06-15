@@ -1,8 +1,9 @@
-﻿using RabbitMQ.Client;
-using System.Text;
-using System.Text.Json;
+﻿using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
 using ReportGenerator.Domain.Interfaces;
 using ReportGenerator.Domain.Models;
+using System.Text;
+using System.Text.Json;
 
 namespace ReportGenerator.Api.Infrastructure.Messaging;
 
@@ -13,13 +14,20 @@ public interface IRabbitMQConnectionFactory
 
 public class RabbitMQConnectionFactory : IRabbitMQConnectionFactory
 {
+    private readonly RabbitMQSettings _settings;
+
+    public RabbitMQConnectionFactory(IOptions<RabbitMQSettings> settings)
+    {
+        _settings = settings.Value ?? throw new ArgumentNullException(nameof(settings));
+    }
+
     public IConnection CreateConnection()
     {
         var factory = new ConnectionFactory
         {
-            HostName = "localhost",
-            UserName = "guest",
-            Password = "guest"
+            HostName = _settings.HostName,
+            UserName = _settings.UserName,
+            Password = _settings.Password
         };
         return factory.CreateConnection();
     }
@@ -29,11 +37,15 @@ public class RabbitMQService : IMessageQueueService, IAsyncDisposable
 {
     private readonly IConnection _connection;
     private readonly IModel _channel;
-    private readonly string _queueName = "report_requests";
+    private readonly string _queueName;
 
-    public RabbitMQService(IRabbitMQConnectionFactory connectionFactory)
+    public RabbitMQService(IRabbitMQConnectionFactory connectionFactory, IOptions<RabbitMQSettings> settings)
     {
+        var rabbitMQSettings = settings.Value ?? throw new ArgumentNullException(nameof(settings));
+
+        _queueName = rabbitMQSettings.QueueName;
         _connection = connectionFactory.CreateConnection();
+
         _channel = _connection.CreateModel();
         _channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
     }

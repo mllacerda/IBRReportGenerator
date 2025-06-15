@@ -1,13 +1,4 @@
-﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using ReportGenerator.Worker.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ReportGenerator.Domain.Models;
@@ -21,27 +12,33 @@ namespace ReportGenerator.Worker
     {
         private readonly IConnection _connection;
         private readonly IModel _channel;
-        private readonly string _queueName = "report_requests";
+        private readonly string _queueName;
         private readonly IReportGeneratorService _reportGeneratorService;
         private readonly IWebhookService _webhookService;
         private readonly ILogger<ReportWorker> _logger;
 
-        public ReportWorker(IReportGeneratorService reportGeneratorService, IWebhookService webhookService, ILogger<ReportWorker> logger)
+        public ReportWorker(IReportGeneratorService reportGeneratorService, 
+            IWebhookService webhookService, ILogger<ReportWorker> logger, IOptions<RabbitMQSettings> settings)
         {
+            _logger = logger;
             _reportGeneratorService = reportGeneratorService;
             _webhookService = webhookService;
 
+            //Settings
+            var rabbitMQSettings = settings.Value ?? throw new ArgumentNullException(nameof(settings));
+            _queueName = rabbitMQSettings.QueueName;
+
             var factory = new ConnectionFactory
             {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
+                HostName = rabbitMQSettings.HostName,
+                UserName = rabbitMQSettings.UserName,
+                Password = rabbitMQSettings.Password
             };
 
+            //Connection
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
             _channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -67,7 +64,7 @@ namespace ReportGenerator.Worker
                     var pdfBytes = _reportGeneratorService.GenerateReportPdf(request);
 
                     //Test Download PDF
-                    //File.WriteAllBytes($"./Reports/report_{request.ReportId}.pdf", pdfBytes);
+                    //File.WriteAllBytes($"report_{request.ReportId}.pdf", pdfBytes);
 
                     //Webhook
                     await _webhookService.SendWebhookAsync(
@@ -104,7 +101,7 @@ namespace ReportGenerator.Worker
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            //_logger.LogInformation("Stopping ReportWorker...");
+            _logger.LogInformation("Stopping ReportWorker...");
 
             _channel?.Close();
             _connection?.Close();
