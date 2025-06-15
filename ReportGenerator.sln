@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportGenerator.Worker", "R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportGenerator.Domain", "ReportGenerator.Domain\ReportGenerator.Domain.csproj", "{EBD95E44-CB7D-4350-9346-91E8FC831F35}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportGenerator.Tests", "ReportGenerator.Tests\ReportGenerator.Tests.csproj", "{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{EBD95E44-CB7D-4350-9346-91E8FC831F35}.Release|x64.Build.0 = Release|Any CPU
 		{EBD95E44-CB7D-4350-9346-91E8FC831F35}.Release|x86.ActiveCfg = Release|Any CPU
 		{EBD95E44-CB7D-4350-9346-91E8FC831F35}.Release|x86.Build.0 = Release|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Debug|x64.Build.0 = Debug|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Debug|x86.Build.0 = Debug|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Release|x64.ActiveCfg = Release|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Release|x64.Build.0 = Release|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Release|x86.ActiveCfg = Release|Any CPU
+		{39EDC4E4-FF35-4C23-BD4A-1995AB9D72DF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

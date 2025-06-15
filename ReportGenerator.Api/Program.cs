@@ -1,4 +1,7 @@
 
+using ReportGenerator.Api.Infrastructure.Messaging;
+using ReportGenerator.Domain.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,7 +13,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 //RabbitMQ
-builder.Services.AddSingleton<ReportGenerator.Domain.Interfaces.IMessageQueueService, ReportGenerator.Api.Infrastructure.Messaging.RabbitMQService>();
+builder.Services.AddSingleton<IRabbitMQConnectionFactory, RabbitMQConnectionFactory>();
+builder.Services.AddSingleton<IMessageQueueService, RabbitMQService>();
 
 var app = builder.Build();
 

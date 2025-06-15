@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ReportGenerator.Worker.Services;
 
-public class WebhookService
+public class WebhookService:IWebhookService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<WebhookService> _logger;

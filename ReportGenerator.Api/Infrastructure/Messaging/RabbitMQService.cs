@@ -6,13 +6,14 @@ using ReportGenerator.Domain.Models;
 
 namespace ReportGenerator.Api.Infrastructure.Messaging;
 
-public class RabbitMQService : IMessageQueueService, IAsyncDisposable
+public interface IRabbitMQConnectionFactory
 {
-    private readonly IConnection _connection;
-    private readonly IModel _channel;
-    private readonly string _queueName = "report_requests";
+    IConnection CreateConnection();
+}
 
-    public RabbitMQService()
+public class RabbitMQConnectionFactory : IRabbitMQConnectionFactory
+{
+    public IConnection CreateConnection()
     {
         var factory = new ConnectionFactory
         {
@@ -20,14 +21,27 @@ public class RabbitMQService : IMessageQueueService, IAsyncDisposable
             UserName = "guest",
             Password = "guest"
         };
+        return factory.CreateConnection();
+    }
+}
 
-        _connection = factory.CreateConnection();
+public class RabbitMQService : IMessageQueueService, IAsyncDisposable
+{
+    private readonly IConnection _connection;
+    private readonly IModel _channel;
+    private readonly string _queueName = "report_requests";
+
+    public RabbitMQService(IRabbitMQConnectionFactory connectionFactory)
+    {
+        _connection = connectionFactory.CreateConnection();
         _channel = _connection.CreateModel();
         _channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
     }
 
     public async Task PublishReportRequestAsync(ReportRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request, nameof(request));
+
         var message = JsonSerializer.Serialize(request);
         var body = Encoding.UTF8.GetBytes(message);
 

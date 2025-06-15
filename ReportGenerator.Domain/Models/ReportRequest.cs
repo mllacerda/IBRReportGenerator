@@ -10,6 +10,6 @@ namespace ReportGenerator.Domain.Models
     {
         public string ReportId { get; set; } = string.Empty;
         public string WebhookUrl { get; set; } = string.Empty;
-        public Dictionary<string, object> Parameters { get; set; } = [];
+        public object? Parameters { get; set; } = null;
     }
 }
