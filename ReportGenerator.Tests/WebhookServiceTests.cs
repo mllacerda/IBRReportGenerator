@@ -41,8 +41,8 @@ public class WebhookServiceTests
     public async Task SendWebhookAsync_SuccessfulRequest_LogsSuccess()
     {
         // Arrange
-        var reportId = "123";
-        var pdfBytes = new byte[] { 1, 2, 3 };
+        var reportId = TestConstants.ReportIdTest;
+        var pdfBytes = TestConstants.PdfBytesTest;
         var message = "Success";
 
         // Act
@@ -56,8 +56,8 @@ public class WebhookServiceTests
     public async Task SendWebhookAsync_FailedRequest_LogsError()
     {
         // Arrange
-        var reportId = "123";
-        var pdfBytes = new byte[] { 1, 2, 3 };
+        var reportId = TestConstants.ReportIdTest;
+        var pdfBytes = TestConstants.PdfBytesTest;
         var message = "Success";
 
         var handlerMock = new Mock<HttpMessageHandler>();
@@ -66,11 +66,9 @@ public class WebhookServiceTests
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
                 ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ThrowsAsync(new HttpRequestException("Failed"));
+                ItExpr.IsAny<CancellationToken>()).ThrowsAsync(new HttpRequestException("Failed"));
 
-        var httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("https://test.com") };
+        var httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri(TestConstants.UrlTest) };
         var service = new WebhookService(httpClient, _loggerMock.Object);
 
         // Act

@@ -15,9 +15,9 @@ public class ReportGeneratorServiceTests
         var service = new ReportGeneratorService();
         var request = new ReportRequest
         {
-            ReportId = "123",
-            WebhookUrl = "https://example.com/webhook",
-            Parameters = new Dictionary<string, object> { { "key1", "value1" }, { "key2", 42 } }
+            ReportId = TestConstants.ReportIdTest,
+            WebhookUrl = TestConstants.UrlTest,
+            Parameters = TestConstants.DictionaryTwoValuesTest
         };
 
         // Act
@@ -37,9 +37,9 @@ public class ReportGeneratorServiceTests
         var service = new ReportGeneratorService();
         var request = new ReportRequest
         {
-            ReportId = "123",
-            WebhookUrl = "https://example.com/webhook",
-            Parameters = new { Name = "Test", Age = 30 }
+            ReportId = TestConstants.ReportIdTest,
+            WebhookUrl = TestConstants.UrlTest,
+            Parameters = TestConstants.ObjectTest
         };
 
         // Act
@@ -56,12 +56,12 @@ public class ReportGeneratorServiceTests
         // Arrange
         QuestPDF.Settings.License = LicenseType.Community;
         var service = new ReportGeneratorService();
-        
-        var base64Image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8cX3QAAAABJRU5ErkJggg==";
+
+        var base64Image = TestConstants.Base64ImageTest;
         var request = new ReportRequest
         {
-            ReportId = "123",
-            WebhookUrl = "https://example.com/webhook",
+            ReportId = TestConstants.ReportIdTest,
+            WebhookUrl = TestConstants.UrlTest,
             Parameters = base64Image
         };
 
@@ -82,8 +82,8 @@ public class ReportGeneratorServiceTests
         var service = new ReportGeneratorService();
         var request = new ReportRequest
         {
-            ReportId = "123",
-            WebhookUrl = "https://example.com/webhook",
+            ReportId = TestConstants.ReportIdTest,
+            WebhookUrl = TestConstants.UrlTest,
             Parameters = null
         };
 

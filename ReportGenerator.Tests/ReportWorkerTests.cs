@@ -54,13 +54,13 @@ public class ReportWorkerTests
         // Arrange
         var request = new ReportRequest
         {
-            ReportId = "123",
-            WebhookUrl = "https://test.com/webhook",
-            Parameters = new Dictionary<string, object> { { "key1", "value1" } }
+            ReportId = TestConstants.ReportIdTest,
+            WebhookUrl = TestConstants.UrlTest,
+            Parameters = TestConstants.DictTest
         };
         var message = JsonSerializer.Serialize(request);
         var body = Encoding.UTF8.GetBytes(message);
-        var pdfBytes = new byte[] { 1, 2, 3 };
+        var pdfBytes = TestConstants.PdfBytesTest;
 
         _reportGeneratorServiceMock.Setup(s => s.GenerateReportPdf(It.IsAny<ReportRequest>())).Returns(pdfBytes);
         _webhookServiceMock.Setup(s => s.SendWebhookAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -72,8 +72,8 @@ public class ReportWorkerTests
         await _webhookServiceMock.Object.SendWebhookAsync(requestDeserialized.WebhookUrl, requestDeserialized.ReportId, pdf, true, $"Report {requestDeserialized.ReportId} generated successfully");
 
         // Assert
-        _reportGeneratorServiceMock.Verify(s => s.GenerateReportPdf(It.Is<ReportRequest>(r => r.ReportId == "123")), Times.Once());
-        _webhookServiceMock.Verify(s => s.SendWebhookAsync("https://test.com/webhook", "123", pdfBytes, true, It.IsAny<string>()), Times.Once());
+        _reportGeneratorServiceMock.Verify(s => s.GenerateReportPdf(It.Is<ReportRequest>(r => r.ReportId == TestConstants.ReportIdTest)), Times.Once());
+        _webhookServiceMock.Verify(s => s.SendWebhookAsync(TestConstants.UrlTest, TestConstants.ReportIdTest, pdfBytes, true, It.IsAny<string>()), Times.Once());
     }
 
 }

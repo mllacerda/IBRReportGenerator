@@ -29,10 +29,10 @@ public class RabbitMQServiceTests
 
         _settingsMock.Setup(s => s.Value).Returns(new RabbitMQSettings
         {
-            HostName = "localhost",
-            UserName = "guest",
-            Password = "guest",
-            QueueName = "report_requests"
+            HostName = TestConstants.RabbitMQHostTest,
+            UserName = TestConstants.RabbitMQUserTest,
+            Password = TestConstants.RabbitMQPasswordTest,
+            QueueName = TestConstants.RabbitMQQueueTest
         });
 
         _service = new RabbitMQService(_connectionFactoryMock.Object, _settingsMock.Object);
@@ -44,9 +44,9 @@ public class RabbitMQServiceTests
         // Arrange
         var request = new ReportRequest
         {
-            ReportId = "123",
-            WebhookUrl = "https://test.com/webhook",
-            Parameters = new Dictionary<string, object> { { "key1", "value1" } }
+            ReportId = TestConstants.ReportIdTest,
+            WebhookUrl = TestConstants.UrlTest,
+            Parameters = TestConstants.DictTest
         };
         var message = JsonSerializer.Serialize(request);
         var body = Encoding.UTF8.GetBytes(message);
@@ -60,8 +60,8 @@ public class RabbitMQServiceTests
         // Assert
         _channelMock.Verify(
             c => c.BasicPublish(
-                It.Is<string>(exchange => exchange == ""),
-                It.Is<string>(routingKey => routingKey == "report_requests"),
+                It.Is<string>(exchange => exchange == string.Empty),
+                It.Is<string>(routingKey => routingKey == TestConstants.RabbitMQQueueTest),
                 It.Is<bool>(mandatory => mandatory == true),
                 It.Is<IBasicProperties>(basicProperties => basicProperties == propertiesMock.Object),
                 It.Is<ReadOnlyMemory<byte>>(b => b.ToArray().SequenceEqual(body))
