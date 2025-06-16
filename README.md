@@ -85,8 +85,25 @@ src/
 git clone https://github.com/mllacerda/IBRReportGenerator.git
 cd IBRReportGenerator
 ```
-### 2. Configure as connection strings
-Edite os arquivos _``appsettings.json``_ em ``ReportGenerator.Api_`` e ``ReportGenerator.Worker``:
+### 2. Configure a conexão com RabbitMQ
+Edite os arquivos _``appsettings.json``_ em ``ReportGenerator.Api`` e ``ReportGenerator.Worker``:
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "RabbitMQ": {
+    "HostName": "localhost",
+    "UserName": "guest",
+    "Password": "guest",
+    "QueueName": "report_requests"
+  }
+}
+```
 
 ### 3. Inicie o RabbitMQ
 ```bash
@@ -182,6 +199,34 @@ POST /api/reports
   "reportId": "test-124",
   "webhookUrl": "https://webhook.site/abc123",
   "parameters": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8cX3QAAAABJRU5ErkJggg=="
+}
+```
+
+#### Tipos complexos:
+```json
+POST /api/reports
+{
+  "reportId": "test-dict-nested-002",
+  "webhookUrl": "https://webhook.site/abc123",
+  "parameters": {
+    "client": {
+      "id": "CLI123",
+      "name": "Joao Oliveira",
+      "email": "joao@example.com"
+    },
+    "order": {
+      "orderId": 456,
+      "total": 789.99,
+      "items": ["item1", "item2"],
+      "customer": {
+        "id": "CUST123",
+        "name": "Maria Oliveira",
+        "email": "maria@example.com",
+        "image": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8cX3QAAAABJRU5ErkJggg=="
+      }
+    },
+    "status": "paused"
+  }
 }
 ```
 
