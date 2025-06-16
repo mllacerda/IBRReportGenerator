@@ -40,7 +40,7 @@ src/
 #### 🛡️ Robustez
 - ✅ Validações de entrada e parâmetros
 - ✅ Logging estruturado
-- ✅ Testes unitários completos
+- ✅ Testes unitários
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -86,9 +86,128 @@ git clone https://github.com/mllacerda/IBRReportGenerator.git
 cd IBRReportGenerator
 ```
 ### 2. Configure as connection strings
-Edite os arquivos **appsettings.json** em _ReportGenerator.Api_ e _ReportGenerator.Worker_:
+Edite os arquivos _``appsettings.json``_ em ``ReportGenerator.Api_`` e ``ReportGenerator.Worker``:
 
 ### 3. Inicie o RabbitMQ
 ```bash
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
 ```
+
+### 4. Execute a API
+```bash
+cd src/ReportGenerator.Api
+dotnet restore
+dotnet run
+```
+
+### 5. Execute o Worker
+```bash
+cd src/ReportGenerator.Worker
+dotnet restore
+dotnet run
+```
+
+### 6. Acesse a aplicação
+- **API**: `https://localhost:<porta>` ou `http://localhost:<porta>`
+- **Swagger UI**: `https://localhost:<porta>/swagger`
+
+> **Nota**: Verifique as portas padrão nos arquivos `launchSettings.json`.
+
+## 📁 Estrutura Detalhada do Projeto
+
+```
+ReportGen/
+├── src/
+│   ├── ReportGenerator.Api/
+│   │   ├── Controllers/                # Controllers da API
+│   │   ├── Infrastructure/Messaging/    # Integração com RabbitMQ
+│   │   ├── Properties/                 # Configurações de launch
+│   │   ├── Program.cs                  # Configuração da aplicação
+│   │   └── appsettings.json            # Configurações
+│   │
+│   ├── ReportGenerator.Worker/
+│   │   ├── Services/                   # Serviços (PDF, Webhook)
+│   │   ├── ReportWorker.cs             # Worker do RabbitMQ
+│   │   ├── Program.cs                  # Configuração do Worker
+│   │   └── appsettings.json            # Configurações
+│   │
+│   ├── ReportGenerator.Domain/
+│   │   ├── Models/                     # Modelos (ReportRequest, RabbitMQSettings)
+│   │   └── Interfaces/                 # Contratos (IMessageQueueService)
+│   │
+│   └── ReportGenerator.Tests/
+│       ├── TestConstants.cs            # Constantes para testes
+│       ├── RabbitMQServiceTests.cs     # Testes do RabbitMQ
+│       ├── ReportGeneratorServiceTests.cs # Testes do PDF
+│       ├── ReportWorkerTests.cs        # Testes do Worker
+│       └── WebhookServiceTests.cs      # Testes do Webhook
+```
+
+## 🧪 Testes
+
+Para executar os testes:
+
+```bash
+cd tests/ReportGenerator.Tests
+dotnet test
+```
+
+## 📚 API Endpoints
+
+### 📄 Geração de Relatórios
+
+| Método | Endpoint | Descrição | Parâmetros |
+|--------|----------|-----------|------------|
+| `POST` | `/api/reports` | Solicita a geração de um relatório | Body: `ReportRequest` |
+
+### 📋 Exemplos de Uso
+
+#### Criar um relatório:
+```json
+POST /api/reports
+{
+  "reportId": "test-123",
+  "webhookUrl": "https://webhook.site/abc123",
+  "parameters": {
+    "key1": "value1",
+    "key2": 42
+  }
+}
+```
+
+#### Com imagem Base64:
+```json
+POST /api/reports
+{
+  "reportId": "test-124",
+  "webhookUrl": "https://webhook.site/abc123",
+  "parameters": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8cX3QAAAABJRU5ErkJggg=="
+}
+```
+
+## 🔧 Configurações Avançadas
+
+### Logging
+- Microsoft.Extensions.Logging para logging estruturado.
+- Logs de processamento, erros e webhooks.
+- Configuração via `appsettings.json`
+
+### Validações
+- Validação de ``ReportRequest`` (não nulo).
+- Suporte a parâmetros genéricos (``object``).
+- Tratamento de erros com mensagens claras.
+
+### Performance
+- RabbitMQ para processamento assíncrono.
+- QuestPDF para geração eficiente de PDFs.
+- Confirmação manual de mensagens (Ack/Nack).
+
+## 🔄 Ideias - Próximas Funcionalidades
+
+- [ ] Reconexão automática no RabbitMQ
+- [ ] Suporte a múltiplas filas
+- [ ] Configuração do formato do PDF via ``appsettings.json``
+- [ ] Cache de relatórios gerados
+- [ ] Autenticação na API
+
+---
