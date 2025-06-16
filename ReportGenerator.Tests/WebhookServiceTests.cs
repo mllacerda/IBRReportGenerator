@@ -14,7 +14,6 @@ public class WebhookServiceTests
 {
     private readonly Mock<ILogger<WebhookService>> _loggerMock;
     private readonly WebhookService _service;
-    private const string TestWebhookUrl = "https://test.com/webhook";
 
     public WebhookServiceTests()
     {
@@ -33,7 +32,7 @@ public class WebhookServiceTests
                 StatusCode = HttpStatusCode.OK
             });
 
-        var httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri("https://test.com") };
+        var httpClient = new HttpClient(handlerMock.Object) { BaseAddress = new Uri(TestConstants.UrlTest) };
         _service = new WebhookService(httpClient, _loggerMock.Object);
     }
 
@@ -46,10 +45,10 @@ public class WebhookServiceTests
         var message = "Success";
 
         // Act
-        await _service.SendWebhookAsync(TestWebhookUrl, reportId, pdfBytes, true, message);
+        await _service.SendWebhookAsync(TestConstants.UrlTest, reportId, pdfBytes, true, message);
 
         // Assert
-        _loggerMock.VerifyLog(LogLevel.Information, $"Webhook sent to {TestWebhookUrl} for report {reportId}", Times.Once());
+        _loggerMock.VerifyLog(LogLevel.Information, $"Webhook sent to {TestConstants.UrlTest} for report {reportId}", Times.Once());
     }
 
     [Fact]
@@ -72,9 +71,9 @@ public class WebhookServiceTests
         var service = new WebhookService(httpClient, _loggerMock.Object);
 
         // Act
-        await service.SendWebhookAsync(TestWebhookUrl, reportId, pdfBytes, true, message);
+        await service.SendWebhookAsync(TestConstants.UrlTest, reportId, pdfBytes, true, message);
 
         // Assert
-        _loggerMock.VerifyLog(LogLevel.Error, $"Failed to send webhook to {TestWebhookUrl} for report {reportId}", Times.Once());
+        _loggerMock.VerifyLog(LogLevel.Error, $"Failed to send webhook to {TestConstants.UrlTest} for report {reportId}", Times.Once());
     }
 }
