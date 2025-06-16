@@ -47,10 +47,12 @@ namespace ReportGenerator.Worker
             consumer.Received += async (model, ea) =>
             {
                 ReportRequest? request = null;
+                
                 try
                 {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
+                    _logger.LogInformation("Processing report: {ReportId}", ea.BasicProperties.CorrelationId);
 
                     //Deserialize
                     request = JsonSerializer.Deserialize<ReportRequest>(message);

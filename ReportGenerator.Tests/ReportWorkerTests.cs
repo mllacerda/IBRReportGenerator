@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using ReportGenerator.Domain.Models;
 using ReportGenerator.Worker;
 using ReportGenerator.Worker.Services;
@@ -75,5 +78,4 @@ public class ReportWorkerTests
         _reportGeneratorServiceMock.Verify(s => s.GenerateReportPdf(It.Is<ReportRequest>(r => r.ReportId == TestConstants.ReportIdTest)), Times.Once());
         _webhookServiceMock.Verify(s => s.SendWebhookAsync(TestConstants.UrlTest, TestConstants.ReportIdTest, pdfBytes, true, It.IsAny<string>()), Times.Once());
     }
-
 }

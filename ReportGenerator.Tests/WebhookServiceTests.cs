@@ -76,4 +76,33 @@ public class WebhookServiceTests
         // Assert
         _loggerMock.VerifyLog(LogLevel.Error, $"Failed to send webhook to {TestConstants.UrlTest} for report {reportId}", Times.Once());
     }
+
+    [Fact]
+    public async Task SendWebhookAsync_InvalidUrl_LogsError()
+    {
+        // Arrange
+        var reportId = TestConstants.ReportIdTest;
+        var pdfBytes = TestConstants.PdfBytesTest;
+        var message = TestConstants.SuccessMessageTest;
+        var invalidUrl = "htp://invalid-url"; 
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new InvalidOperationException("Invalid URL"));
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        var service = new WebhookService(httpClient, _loggerMock.Object);
+
+        // Act
+        await service.SendWebhookAsync(invalidUrl, reportId, pdfBytes, true, message);
+
+        // Assert
+        _loggerMock.VerifyLog(LogLevel.Error, $"Failed to send webhook to {invalidUrl} for report {reportId}", Times.Once());
+    }
 }
