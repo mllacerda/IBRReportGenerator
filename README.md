@@ -23,8 +23,8 @@ src/
 #### 📄 Geração de Relatórios
 - ✅ Criar relatórios em PDF via endpoint POST
 - ✅ Suporte a parâmetros genéricos (`object`)
-- ✅ Renderização de dicionários e listas
-- ✅ Suporte a imagens em Base64
+- ✅ Suporte a parâmetros complexos (dicionários aninhados, listas)
+- ✅ Renderização de imagens Base64 em qualquer nível de aninhamento
 - ✅ Formato A4 com cabeçalho e rodapé
 
 #### 🐰 Processamento Assíncrono
